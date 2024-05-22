@@ -46,3 +46,56 @@ app.get("/states/", async (request, response) => {
     statesArray.map((eachState) => convertDbObjectToResponseObject(eachState))
   );
 });
+
+// get one state
+
+app.get("/states/:stateId/", async (request, response) => {
+  const { stateId } = request.params;
+  const getOneStateQuery = `
+    SELECT
+      *
+    FROM
+    state 
+    WHERE
+      state_id = ${stateId};`;
+  const state = await db.get(getOneStateQuery);
+  response.send(convertDbObjectToResponseObject(state));
+});
+
+// add states
+
+app.post("/districts/", async (request, response) => {
+  const districtDetails = request.body;
+  const {
+    districtName,
+    stateId,
+    cases,
+    cured,
+    active,
+    deaths,
+  } = districtDetails;
+  const addDistrictQuery = `
+    INSERT INTO
+    district ( 
+    district_name,
+    state_id,
+    cases,
+    cured,
+    active,
+    deaths)
+    VALUES
+      (
+         '${districtName}',
+         ${stateId},
+         ${cases},
+         ${cured},
+         ${active},
+         ${deaths}
+         
+      );`;
+
+  const dbResponse = await db.run(addDistrictQuery);
+  const addId = dbResponse.lastID;
+  response.send("District Successfully Added");
+});
+
